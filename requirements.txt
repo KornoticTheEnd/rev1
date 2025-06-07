@@ -1,0 +1,6 @@
+streamlit
+matplotlib
+python-dotenv
+pandas
+numpy
+xlsxwriter
