@@ -9,28 +9,35 @@ def DmgRecLog(logfile, top_x, includePvE):
     dmg_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r attacked (.+?)\|r using \|cff57d6ae(.*?)\|r\|r and caused \|cffc13d36-(\d+)\|r\|r \|cffc13d36Health\|r\|r \(\|cffc13d36(.+?)\|r\|r\)!')
     dmg_events = []
 
-    excluded_entities = ['Black Dragon', 'Kraken', 'Flame Field', 'Jola the Cursed', 'Glenn', 'Meina', 'Crewman', 'Charybdis', 'Anthalon', 'Bloodspire', 'Nightmare Warrior','Nightmare Archer','Scarlet Incubus']
+    excluded_entities = [
+        'Black Dragon', 'Kraken', 'Flame Field', 'Jola the Cursed', 'Glenn', 'Meina', 'Crewman',
+        'Charybdis', 'Anthalon', 'Bloodspire', 'Nightmare Warrior', 'Nightmare Archer', 'Scarlet Incubus'
+    ]
     excluded_abilities = ['Corrosive Acid', "Black Dragon's Breath", "Red Dragon's Breath", "Clinging Flame", 
                          "Roar Aftershock", "Clinging Flame Explosion", "Boulder Rain", "Guided Missiles", 
                          "Earthquake", "Twisted Dance", "Anthalon's Sacrifice", "Crimson Mist", "Crimson Explosion", "Twisted Spear"]
     
+    excluded_normalized = [e.lower() for e in excluded_entities]
+
     for line in lines:
         if dmg_pattern.match(line):
             result = dmg_pattern.findall(line)
             attacker = result[0][1].strip()
             receiver = result[0][2].strip()
             ability = result[0][3]
-
-            # More strict PvE filtering
+            attacker_normalized = attacker.lower()
+            receiver_normalized = receiver.lower()
+            # Filter out if either attacker or receiver is an excluded entity
             if includePvE == 0:
-                # Only include player-vs-player damage
                 if (attacker.count(' ') == 0 and receiver.count(' ') == 0 and
-                    attacker not in excluded_entities and
+                    attacker_normalized not in excluded_normalized and
+                    receiver_normalized not in excluded_normalized and
                     ability not in excluded_abilities):
                     dmg_events.append(result[0])
             else:
-                # Include all damage except from excluded entities
-                if attacker not in excluded_entities and ability not in excluded_abilities:
+                if (attacker_normalized not in excluded_normalized and
+                    receiver_normalized not in excluded_normalized and
+                    ability not in excluded_abilities):
                     dmg_events.append(result[0])
 
     '''Collect & Calc events'''
