@@ -12,7 +12,7 @@ def DmgRecLog(logfile, top_x, includePvE):
     excluded_entities = ['Black Dragon', 'Kraken', 'Flame Field', 'Jola the Cursed', 'Glenn', 'Meina', 'Crewman', 'Charybdis', 'Anthalon', 'Bloodspire', 'Nightmare Warrior','Nightmare Archer','Scarlet Incubus']
     excluded_abilities = ['Corrosive Acid', "Black Dragon's Breath", "Red Dragon's Breath", "Clinging Flame", 
                          "Roar Aftershock", "Clinging Flame Explosion", "Boulder Rain", "Guided Missiles", 
-                         "Earthquake", "Shoot Acid"]
+                         "Earthquake", "Twisted Dance", "Anthalon's Sacrifice", "Crimson Mist", "Crimson Explosion", "Twisted Spear"]
     
     for line in lines:
         if dmg_pattern.match(line):
