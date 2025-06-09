@@ -12,20 +12,22 @@ def DamageLog(logfile, top_x, includePvE):
     excluded_entities = ['Red Dragon', 'Black Dragon', 'Kraken', 'Flame Field', 'Jola the Cursed', 'Glenn', 'Meina', 'Crewman', 'Charybdis', 'Anthalon', 'Bloodspire']
     excluded_abilities = ['Corrosive Acid', "Black Dragon's Breath", "Red Dragon's Breath", "Clinging Flame", 
                          "Roar Aftershock", "Clinging Flame Explosion", "Boulder Rain", "Guided Missiles", 
-                         "Earthquake", "Shoot Acid"]
+                         "Earthquake", "Twisted Dance", "Anthalon's Sacrifice", "Crimson Mist", "Crimson Explosion", "Twisted Spear"]
 
     for line in lines:
         if dmg_pattern.match(line):
             result = dmg_pattern.findall(line)
             ability_used = result[0][3]
+            attacker = result[0][1].strip()
+            receiver = result[0][2].strip()
             if includePvE == 0:
-                if result[0][2].count(' ') == 0 \
-                and result[0][1].count(' ') == 0 \
-                and not any(ele in excluded_entities for ele in result[0]) \
+                if receiver.count(' ') == 0 \
+                and attacker.count(' ') == 0 \
+                and attacker not in excluded_entities \
                 and ability_used not in excluded_abilities:
                     dmg_events.append(result[0])
             elif includePvE == 1:
-                if not any(ele in result[0][1] for ele in excluded_entities) \
+                if attacker not in excluded_entities \
                 and ability_used not in excluded_abilities:
                     dmg_events.append(result[0])
 
