@@ -99,9 +99,9 @@ else:
         # Analysis type selector with Combined Analysis and Combos & Casts at the top
         analysis_type = st.sidebar.selectbox(
             "Select Analysis Type",
-            ["Combined Analysis", "Combos & Casts", "Damage Log", "Damage By Ability", 
-             "Damage Percentile Comparison", "Healing Log", "Healing Done By Target", 
-             "Healing Received From Healers", "Healing Taken By Target",
+            ["All Plots Combined", "Combined Analysis", "Combos & Casts", "Damage Log", 
+             "Damage By Ability", "Damage Percentile Comparison", "Healing Log", 
+             "Healing Done By Target", "Healing Received From Healers", "Healing Taken By Target",
              "Healing Taken From Who", "Healing Percentile Comparison",
              "Damage Taken Log", "Damage Taken By Target", "Damage Taken From Who",
              "Healing From Pots", "Ghosts", "Mend", "Song Buffs", "Song Debuffs"]
@@ -135,7 +135,13 @@ else:
 
             # Execute selected analysis
             try:
-                if analysis_type == "Combined Analysis":
+                if analysis_type == "All Plots Combined":
+                    from combined_plots import generate_all_plots
+                    with st.spinner('Generating all plots... This may take a while...'):
+                        fig = generate_all_plots(temp_path, includePvE, includeSelf)
+                        st.pyplot(fig)
+                        
+                elif analysis_type == "Combined Analysis":
                     if not file_content:
                         st.error("No file content found")
                     else:    

@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# Temporary files
+temp.log
+*.temp
+output/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
