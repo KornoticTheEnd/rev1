@@ -99,8 +99,8 @@ else:
         # Analysis type selector with Combined Analysis and Combos & Casts at the top
         analysis_type = st.sidebar.selectbox(
             "Select Analysis Type",
-            ["All Plots Combined", "Combined Analysis", "Combos & Casts", "Damage Log", 
-             "Damage By Ability", "Damage Percentile Comparison", "Healing Log", 
+            ["All Plots Combined", "All Player Plots", "Combined Analysis", "Combos & Casts", 
+             "Damage Log", "Damage By Ability", "Damage Percentile Comparison", "Healing Log", 
              "Healing Done By Target", "Healing Received From Healers", "Healing Taken By Target",
              "Healing Taken From Who", "Healing Percentile Comparison",
              "Damage Taken Log", "Damage Taken By Target", "Damage Taken From Who",
@@ -141,6 +141,15 @@ else:
                         fig = generate_all_plots(temp_path, includePvE, includeSelf)
                         st.pyplot(fig)
                         
+                elif analysis_type == "All Player Plots":
+                    if not player_name:
+                        st.error("Please enter a player name in the sidebar")
+                    else:
+                        from player_plots import generate_player_plots
+                        with st.spinner('Generating player plots... This may take a while...'):
+                            fig = generate_player_plots(temp_path, player_name, includePvE, includeSelf)
+                            st.pyplot(fig)
+                
                 elif analysis_type == "Combined Analysis":
                     if not file_content:
                         st.error("No file content found")
