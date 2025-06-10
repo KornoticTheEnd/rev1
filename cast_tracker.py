@@ -24,6 +24,9 @@ CAST_PATTERNS = {
     ],
     'Halcy Neck': [
         r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeDeliverance Shield\|r\|r!'
+    ],
+    'Egirl Neck': [
+        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeHand of Salvation \(Rank 8\)\|r\|r!'
     ]
 }
 
