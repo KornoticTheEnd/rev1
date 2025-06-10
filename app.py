@@ -108,7 +108,7 @@ else:
         )
 
         # Remove Healing Received From Healers from player name requirement
-        if analysis_type in ["Damage By Ability", "Healing Done By Target",
+        if analysis_type in ["All Player Plots", "Damage By Ability", "Healing Done By Target",
                             "Healing Taken By Target", "Damage Taken By Target",
                             "Damage Taken From Who", "Healing Taken From Who"]:
             player_name = st.sidebar.text_input("Enter player name")
