@@ -4,29 +4,29 @@ import matplotlib.pyplot as plt
 
 CAST_PATTERNS = {
     'Kraken Scepter': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeDesolate Sea Sovereign\|r\|r!',
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeArcadian Sea Sovereign\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeDesolate Sea Sovereign\|r\|r!',
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeArcadian Sea Sovereign\|r\|r!'
     ],
     'Kraken Shield': [
-        r'<(.+?)(.+?)\|r gained the buff: \|cff57d6aeArcadian Sea Keeper Stealth\|r\|r\.'
+        r'<(.+?)\|ic23895;(.+?)\|r gained the buff: \|cff57d6aeArcadian Sea Keeper Stealth\|r\|r\.'
     ],
     'Startling Strain': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeStartling Strain\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeStartling Strain\|r\|r!'
     ],
     'Stillness': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeStillness\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeStillness\|r\|r!'
     ],
     'Bubble Trap': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeBubble Trap\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeBubble Trap\|r\|r!'
     ],
     'Banshee Wail': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeBanshee Wail\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeBanshee Wail\|r\|r!'
     ],
     'Halcy Neck': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeDeliverance Shield\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeDeliverance Shield\|r\|r!'
     ],
     'Egirl Neck': [
-        r'<(.+?)(.+?)\|r successfully cast \|cff57d6aeHands of Salvation\|r\|r!'
+        r'<(.+?)\|ic23895;(.+?)\|r successfully cast \|cff57d6aeHands of Salvation\|r\|r!'
     ]
 }
 
@@ -47,7 +47,7 @@ class CastTracker:
         cast_counts = defaultdict(lambda: defaultdict(int))
         
         # Pattern to extract timestamp and player name
-        timestamp_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.*?)\|r')
+        timestamp_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.*?)\|r')
 
         for line in self.log_lines:
             # First extract player name without timestamp

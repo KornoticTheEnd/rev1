@@ -9,13 +9,13 @@ class ComboTracker:
         
         # Precompile regex patterns
         self.timestamp_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})')
-        self.retribution_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r gained the buff: \|cff57d6aeRetribution\|r\|r\.')
-        self.toughen_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r gained the buff: \|cff57d6aeToughened \(Rank 4\)\|r\|r\.')
-        self.bull_rush_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r gained the buff: \|cff57d6aeBull Rush: Aggro Boost\|r\|r\.')
-        self.distress_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r was struck by a \|cff57d6aeDistressed\|r\|r debuff!')
-        self.discord_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r attacked (.+?)\|r using \|cff57d6aeCritical Discord\|r\|r')
-        self.dissonance_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r was struck by a \|cff57d6aeDissonance\|r\|r debuff!')
-        self.mocking_howl_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.+?)\|r successfully cast \|cff57d6aeMocking Howl\|r\|r!')
+        self.retribution_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r gained the buff: \|cff57d6aeRetribution\|r\|r\.')
+        self.toughen_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r gained the buff: \|cff57d6aeToughened \(Rank 4\)\|r\|r\.')
+        self.bull_rush_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r gained the buff: \|cff57d6aeBull Rush: Aggro Boost\|r\|r\.')
+        self.distress_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r was struck by a \|cff57d6aeDistressed\|r\|r debuff!')
+        self.discord_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r attacked (.+?)\|r using \|cff57d6aeCritical Discord\|r\|r')
+        self.dissonance_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r was struck by a \|cff57d6aeDissonance\|r\|r debuff!')
+        self.mocking_howl_pattern = re.compile(r'<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r successfully cast \|cff57d6aeMocking Howl\|r\|r!')
 
     def track_distress_combo(self):
         active_buffs = {}
