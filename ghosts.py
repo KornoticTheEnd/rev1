@@ -125,9 +125,7 @@ def plot_debuff_data(debuff_data, waves=None, boss_power=0):
 
     # Format x-axis with timestamps
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-    plt.xticks(rotation=45)
-
-    # Add wave analysis if available
+    plt.xticks(rotation=45)    # Add wave analysis if available
     if waves:
         total_affected = sum(len(w['affected_players']) for w in waves)
         total_cleared = sum(len(w['cleared_players']) for w in waves)
@@ -139,21 +137,11 @@ def plot_debuff_data(debuff_data, waves=None, boss_power=0):
         col2.metric("Players Affected", total_affected)
         col3.metric("Successfully Cleared", total_cleared)
         col4.metric("Failed to Clear", total_failed)
-
+        
         if boss_power >= 150:  # 15 stacks
             st.error(f"⚠️ Boss Enraged! Power: {boss_power}%")
         elif boss_power > 0:
             st.warning(f"🔥 Boss Power: {boss_power}%")
-
+            
     plt.tight_layout()
     return fig
-
-# Example usage
-log_file_path = 'path_to_log_file.log'  # Replace with your actual log file path
-try:
-    with open(log_file_path, 'r', encoding='utf-8') as file:
-        log_data = file.read()
-    debuff_data, waves, boss_power = parse_log(log_data, [])
-    plot_debuff_data(debuff_data, waves, boss_power)
-except FileNotFoundError:
-    logging.error(f"Log file '{log_file_path}' not found.")
