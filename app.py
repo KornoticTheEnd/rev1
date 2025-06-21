@@ -160,7 +160,7 @@ else:
                                 st.pyplot(fig)
                             except Exception as e:
                                 st.error(f"Error generating combined analysis: {str(e)}")
-                                
+                
                 elif analysis_type == "Damage Log":
                     dmg_log, plot = DamageLog(temp_path, (0, 24), includePvE)
                     st.pyplot(plot)
@@ -200,25 +200,25 @@ else:
                         heal_df = HealPercentileLog(temp_path, players, includeSelf)
                         if heal_df is not None:
                             st.dataframe(heal_df)
-
+                
                 elif analysis_type == "Damage Taken Log":
                     dmg_log, plot = DmgRecLog(temp_path, 25, includePvE)
                     st.pyplot(plot)
-                
+                    
                 elif analysis_type == "Damage Taken By Target":
                     if player_name:
                         dmg_log, plot = DmgTakenByPlayer(temp_path, player_name, includePvE)
                         st.pyplot(plot)
-                        
+                
                 elif analysis_type == "Damage Taken From Who":
                     if player_name:
                         dmg_log, plot = DmgTakenFromLog(temp_path, player_name, includePvE)
                         st.pyplot(plot)
-                        
+                
                 elif analysis_type == "Healing From Pots":
                     pots_log, plot = PotsLog(temp_path, 25)
                     st.pyplot(plot)
-                    
+                
                 elif analysis_type == "Ghosts":
                     try:
                         analyzer = GhostAnalyzer()
@@ -268,92 +268,9 @@ else:
                         else:
                             st.error(result['message'])
                             st.info("Make sure your log file contains ghost mechanics data")
-                            st.header("Summary")
-                            col1, col2, col3 = st.columns(3)
-                            with col1:
-                                st.metric("Total Waves", result['total_waves'])
-                            with col2:
-                                total_players = len(result['player_stats'])
-                                st.metric("Players Affected", total_players)
-                            with col3:
-                                st.metric("Boss Power", f"{result['boss_power']}%")
-                                if result['boss_power'] >= 150:
-                                    st.error("⚠️ Boss Enraged!")
-                            
-                            # Player Performance Table
-                            st.header("Player Performance")
-                            st.dataframe(result['player_stats'])
-                            
-                            # Wave Breakdown
-                            st.header("Wave Analysis")
-                            st.dataframe(result['wave_summary'])
-                            
-                            # Visualization
-                            st.header("Clear Time Distribution")
-                            fig, ax = plt.subplots(figsize=(10, 6))
-                            
-                            clear_times = [
-                                (event['clear_time'] - event['start']).total_seconds()
-                                for event in result['debuff_events']
-                                if event['cleared']
-                            ]
-                            
-                            if clear_times:
-                                ax.hist(clear_times, bins=20, color='skyblue', edgecolor='black')
-                                ax.axvline(x=37, color='red', linestyle='--', label='Fail threshold (37s)')
-                                ax.set_xlabel('Clear Time (seconds)')
-                                ax.set_ylabel('Count')
-                                ax.set_title('Distribution of Ghost Clear Times')
-                                ax.legend()
-                                st.pyplot(fig)
-                        else:
-                            st.error(result['message'])
-                            st.info("Make sure your log file contains ghost mechanics data")
                     except Exception as e:
                         st.error(f"Error analyzing ghost data: {str(e)}")
-                        st.header("Summary")
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Total Waves", result['total_waves'])
-                        with col2:
-                            total_players = len(result['player_stats'])
-                            st.metric("Players Affected", total_players)
-                        with col3:
-                            st.metric("Boss Power", f"{result['boss_power']}%")
-                            if result['boss_power'] >= 150:
-                                st.error("⚠️ Boss Enraged!")
                         
-                        # Player Performance Table
-                        st.header("Player Performance")
-                        st.dataframe(result['player_stats'])
-                        
-                        # Wave Breakdown
-                        st.header("Wave Analysis")
-                        st.dataframe(result['wave_summary'])
-                        
-                        # Visualization
-                        st.header("Clear Time Distribution")
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        
-                        clear_times = [
-                            (event['clear_time'] - event['start']).total_seconds()
-                            for event in result['debuff_events']
-                            if event['cleared']
-                        ]
-                        
-                        if clear_times:
-                            ax.hist(clear_times, bins=20, color='skyblue', edgecolor='black')
-                            ax.axvline(x=37, color='red', linestyle='--', label='Fail threshold (37s)')
-                            ax.set_xlabel('Clear Time (seconds)')
-                            ax.set_ylabel('Count')
-                            ax.set_title('Distribution of Ghost Clear Times')
-                            ax.legend()
-                            
-                            st.pyplot(fig)
-                    else:
-                        st.error(result['message'])
-                        st.info("Make sure your log file contains ghost mechanics data")
-                
                 elif analysis_type == "Mend":
                     heal_data, mend_counts = parse_heal_log(temp_path)
                     heal_stats = calculate_heal_stats(heal_data)
