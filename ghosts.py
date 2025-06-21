@@ -26,20 +26,29 @@ class GhostAnalyzer:
 
     def parse_timestamp(self, ts_str):
         return datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
-
+        
     def analyze_log(self, log_data):
         self.reset()
         
+        logging.info("Starting ghost analysis...")
+        logging.info(f"Total lines in log: {len(log_data.splitlines())}")
+        line_count = 0
+        pattern_matches = {'spawn': 0, 'debuff': 0, 'clear': 0, 'power': 0}
+        
         for line in log_data.splitlines():
+            line_count += 1
+            
             # Check spawn
             if spawn_match := re.search(self.patterns['spawn'], line):
+                pattern_matches['spawn'] += 1
                 if self.current_wave:
                     self.waves.append(self.current_wave)
                 timestamp = self.parse_timestamp(spawn_match.group(1))
                 self.current_wave = {'start': timestamp, 'players': [], 'clears': [], 'times': []}
-                
-            # Check debuff
+                logging.info(f"Found ghost spawn at {timestamp}")
+                  # Check debuff
             elif debuff_match := re.search(self.patterns['debuff'], line):
+                pattern_matches['debuff'] += 1
                 if not self.current_wave:
                     continue
                 timestamp = self.parse_timestamp(debuff_match.group(1))
@@ -48,11 +57,14 @@ class GhostAnalyzer:
                     self.current_wave['players'].append(player)
                     self.player_stats[player]['total'] += 1
                 self.debuff_events.append({'player': player, 'start': timestamp, 'cleared': False})
+                logging.info(f"Found ghost debuff on {player} at {timestamp}")
                 
             # Check clear
             elif clear_match := re.search(self.patterns['clear'], line):
+                pattern_matches['clear'] += 1
                 timestamp = self.parse_timestamp(clear_match.group(1))
                 player = clear_match.group(2).strip()
+                logging.info(f"Found ghost clear for {player} at {timestamp}")
                 
                 # Find matching debuff event
                 for event in reversed(self.debuff_events):
@@ -73,9 +85,9 @@ class GhostAnalyzer:
                         
             # Check power gain
             elif power_match := re.search(self.patterns['power'], line):
+                pattern_matches['power'] += 1
                 self.boss_power += 10  # Each stack is 10%
-
-        # Add final wave
+                logging.info(f"Found boss power gain at line {line_count}")        # Add final wave
         if self.current_wave:
             self.waves.append(self.current_wave)
 
@@ -84,6 +96,12 @@ class GhostAnalyzer:
             self.player_stats[player]['failed'] = (
                 self.player_stats[player]['total'] - self.player_stats[player]['cleared']
             )
+
+        logging.info("Ghost analysis complete")
+        logging.info(f"Pattern matches: {pattern_matches}")
+        logging.info(f"Total waves found: {len(self.waves)}")
+        logging.info(f"Total players affected: {len(self.player_stats)}")
+        logging.info(f"Final boss power: {self.boss_power}%")
 
         return self.generate_report()
 
