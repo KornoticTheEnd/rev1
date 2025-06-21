@@ -10,9 +10,8 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 class GhostAnalyzer:
     def __init__(self):
         self.patterns = {
-            'spawn': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r is casting \|cff57d6aeSpawn Ghosts\|r\|r!",
-            'debuff': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Repulsing Darkness\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r",
-            'clear': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared",
+            'spawn': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r is casting \|cff57d6aeRepulsing Darkness\|r\|r!",
+            'debuff': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Repulsing Darkness\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r",            'clear': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared",
             'power': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r"
         }
         self.reset()
@@ -34,7 +33,7 @@ class GhostAnalyzer:
         logging.info(f"Total lines in log: {len(log_data.splitlines())}")
         line_count = 0
         pattern_matches = {'spawn': 0, 'debuff': 0, 'clear': 0, 'power': 0}
-          # Log example patterns we're looking for
+        # Log example patterns we're looking for
         logging.info("Ghost patterns to match:")
         for pattern_name, pattern in self.patterns.items():
             logging.info(f"{pattern_name}: {pattern}")
@@ -98,7 +97,9 @@ class GhostAnalyzer:
             elif power_match := re.search(self.patterns['power'], line):
                 pattern_matches['power'] += 1
                 self.boss_power += 10  # Each stack is 10%
-                logging.info(f"Found boss power gain at line {line_count}")        # Add final wave
+                logging.info(f"Found boss power gain at line {line_count}")
+                
+        # Add final wave
         if self.current_wave:
             self.waves.append(self.current_wave)
 
