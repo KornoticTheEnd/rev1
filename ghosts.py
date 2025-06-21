@@ -78,7 +78,7 @@ def parse_log(log_data, players):
 
 # Function to plot debuff data
 def plot_debuff_data(debuff_data, waves=None, boss_power=0):
-    if not debuff_data:
+    if not isinstance(debuff_data, dict) or not debuff_data:
         st.warning("No ghost debuff data found in the log file.")
         return None
 
