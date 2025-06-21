@@ -34,9 +34,20 @@ class GhostAnalyzer:
         logging.info(f"Total lines in log: {len(log_data.splitlines())}")
         line_count = 0
         pattern_matches = {'spawn': 0, 'debuff': 0, 'clear': 0, 'power': 0}
+          # Log example patterns we're looking for
+        logging.info("Ghost patterns to match:")
+        for pattern_name, pattern in self.patterns.items():
+            logging.info(f"{pattern_name}: {pattern}")
         
         for line in log_data.splitlines():
             line_count += 1
+            # Log sample lines periodically for debugging
+            if line_count % 1000 == 0:
+                logging.info(f"Sample line {line_count}: {line[:200]}")
+            # Try to match each pattern and log results
+            for pattern_name, pattern in self.patterns.items():
+                if re.search(pattern, line):
+                    logging.info(f"Found {pattern_name} match in line {line_count}: {line[:200]}")
             
             # Check spawn
             if spawn_match := re.search(self.patterns['spawn'], line):
