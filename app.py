@@ -209,7 +209,8 @@ else:
                     if player_name:
                         dmg_log, plot = DmgTakenByPlayer(temp_path, player_name, includePvE)
                         st.pyplot(plot)
-                  elif analysis_type == "Damage Taken From Who":
+                        
+                elif analysis_type == "Damage Taken From Who":
                     if player_name:
                         dmg_log, plot = DmgTakenFromLog(temp_path, player_name, includePvE)
                         st.pyplot(plot)
