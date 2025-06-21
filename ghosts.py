@@ -21,17 +21,26 @@ def parse_log(log_data, players):
     current_wave = None
     debuff_data = {}  # Initialize as empty dict
     boss_power_stacks = 0  # Track actual boss power stacks from log
+    
+    # Add counters for debugging
+    spawn_count = 0
+    debuff_count = 0
+    clear_count = 0
+    power_count = 0
 
     if not log_data:  # Handle empty log data
+        logging.warning("No log data provided")
         return {}, [], 0
 
     for line in log_data.splitlines():
         if power_match := re.search(power_stack_pattern, line):
-            boss_power_stacks += 1  # Increment when boss gains a power stack
+            power_count += 1
+            boss_power_stacks += 1
             if current_wave:
                 current_wave['power_gained'] = True
         
         if spawn_match := re.search(ghost_spawn_pattern, line):
+            spawn_count += 1
             # New wave starting
             if current_wave:
                 waves.append(current_wave)
@@ -45,6 +54,7 @@ def parse_log(log_data, players):
             }
 
         if apply_match := re.search(debuff_applied_pattern, line):
+            debuff_count += 1
             timestamp_str, target = apply_match.groups()
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
             player = target.strip()
@@ -55,6 +65,7 @@ def parse_log(log_data, players):
                 current_wave['affected_players'].append(player)
 
         if clear_match := re.search(debuff_cleared_pattern, line):
+            clear_count += 1
             timestamp_str, player = clear_match.groups()
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
             if player in debuff_data and debuff_data[player]:
@@ -64,6 +75,9 @@ def parse_log(log_data, players):
                         if current_wave and player in current_wave['affected_players']:
                             current_wave['cleared_players'].append(player)
                         break
+    
+    # Log debug information
+    logging.info(f"Found {spawn_count} ghost spawns, {debuff_count} debuffs applied, {clear_count} debuffs cleared, {power_count} power stacks")
 
     # Add final wave if exists
     if current_wave:
@@ -145,3 +159,37 @@ def plot_debuff_data(debuff_data, waves=None, boss_power=0):
             
     plt.tight_layout()
     return fig
+
+# Main Streamlit app
+def main():
+    st.title("Ghost Debuff Tracker")
+    
+    # File upload
+    log_file = st.file_uploader("Upload your log file", type=["txt"])
+    
+    if log_file is not None:
+        # Read and decode the file
+        log_data = log_file.getvalue().decode("utf-8")
+        
+        # Parse the log data
+        debuff_data, waves, boss_power = parse_log(log_data, [])
+        
+        # Display raw log data for debugging
+        if st.checkbox("Show raw log data"):
+            st.subheader("Raw Log Data")
+            st.code(log_data, language='text')
+        
+        # After creating the figure
+        fig = plot_debuff_data(debuff_data, waves, boss_power)
+        if fig is not None:
+            st.pyplot(fig)  # Explicitly pass the figure to pyplot
+        else:
+            st.warning("No ghost debuff data found in the log file.")
+            # Add debug info
+            st.info("Debug: Check that your log contains lines matching these patterns:")
+            st.code("Spawn: <timestamp|ic23895;anyone|r is casting |cff57d6aeSpawn Ghosts|r|r!")
+            st.code("Debuff: <timestamp|ic23895;Repulsing Darkness|r attacked player|r using |cff57d6aePenetrating Dark Energy Effect|r|r")
+            st.code("Clear: <timestamp|ic23895;player|r's |cff57d6aePenetrating Dark Energy|r|r debuff cleared.")
+            
+if __name__ == "__main__":
+    main()
