@@ -198,10 +198,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-    debuff_cleared_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared."
-    power_stack_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r."
-    
-    waves = []  # Track each wave of ghosts
     current_wave = None
     debuff_data = {}  # Initialize as empty dict
     boss_power_stacks = 0  # Track actual boss power stacks from log

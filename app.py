@@ -220,12 +220,16 @@ else:
                     print(f"Selected file path: {temp_path}")
                     
                     pots_log, plot = PotsLog(temp_path, 25)
-                    st.pyplot(plot)
-                  elif analysis_type == "Ghosts":
+                    st.pyplot(plot)            elif analysis_type == "Ghosts":
+                try:
                     analyzer = GhostAnalyzer()
-                    result = analyzer.analyze_log(file_content.decode())
-                    if result['success']:
-                        # Summary metrics
+                    result = analyzer.analyze_log(log_data)
+            except Exception as e:
+                    st.error(f"Error analyzing log: {str(e)}")
+                    return
+                
+                if result['success']:
+                    # Summary metrics
                         st.header("Summary")
                         col1, col2, col3 = st.columns(3)
                         with col1:
