@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 def parse_log(log_data, players):
     # Update patterns to include boss cast and power stacks
     ghost_spawn_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r is casting \|cff57d6aeSpawn Ghosts\|r\|r!"
-    debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r was struck by a \|cff57d6aePenetrating Dark Energy\|r\|r debuff!"
+    debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r and caused"
     debuff_cleared_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared."
     power_stack_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r."
     
@@ -45,8 +45,9 @@ def parse_log(log_data, players):
             }
 
         if apply_match := re.search(debuff_applied_pattern, line):
-            timestamp_str, player = apply_match.groups()
+            timestamp_str, attacker, target = apply_match.groups()
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+            player = target.strip()
             if player not in debuff_data:
                 debuff_data[player] = []
             debuff_data[player].append({'applied': timestamp, 'cleared': None})
@@ -57,7 +58,6 @@ def parse_log(log_data, players):
             timestamp_str, player = clear_match.groups()
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
             if player in debuff_data and debuff_data[player]:
-                # Find the most recent uncleaned debuff
                 for debuff in reversed(debuff_data[player]):
                     if debuff['cleared'] is None:
                         debuff['cleared'] = timestamp
@@ -71,8 +71,7 @@ def parse_log(log_data, players):
 
     # Calculate failed players for each wave
     for wave in waves:
-        wave['failed_players'] = [p for p in wave['affected_players'] 
-                                if p not in wave['cleared_players']]
+        wave['failed_players'] = [p for p in wave['affected_players'] if p not in wave['cleared_players']]
 
     return debuff_data, waves, boss_power_stacks * 10  # Each stack is 10% power
 
