@@ -198,7 +198,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-    debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Repulsing Darkness\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r and caused"
     debuff_cleared_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared."
     power_stack_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r."
     
@@ -212,31 +211,6 @@ if __name__ == "__main__":
     debuff_count = 0
     clear_count = 0
     power_count = 0
-
-    if not log_data:  # Handle empty log data
-        logging.warning("No log data provided")
-        return {}, [], 0
-
-    for line in log_data.splitlines():
-        if power_match := re.search(power_stack_pattern, line):
-            power_count += 1
-            boss_power_stacks += 1
-            if current_wave:
-                current_wave['power_gained'] = True
-        
-        if spawn_match := re.search(ghost_spawn_pattern, line):
-            spawn_count += 1
-            # New wave starting
-            if current_wave:
-                waves.append(current_wave)
-            timestamp = datetime.strptime(spawn_match.group(1), "%Y-%m-%d %H:%M:%S")
-            current_wave = {
-                'spawn_time': timestamp,
-                'affected_players': [],
-                'failed_players': [],
-                'cleared_players': [],
-                'power_gained': False
-            }
 
         if apply_match := re.search(debuff_applied_pattern, line):
             debuff_count += 1

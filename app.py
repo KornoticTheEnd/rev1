@@ -18,7 +18,7 @@ from damage_taken_log import DmgRecLog
 from damage_taken_target import DmgTakenByPlayer
 from healing_pots import PotsLog
 from mend import parse_heal_log, calculate_heal_stats, plot_total_heals, plot_min_max_avg_heals, plot_mend_casts
-from ghosts import parse_log, plot_debuff_data
+from ghosts import GhostAnalyzer
 from song_buff import plot_song_buff_data
 from song_debuffs import plot_song_debuff_data
 from damage_taken_from import DmgTakenFromLog
@@ -221,9 +221,53 @@ else:
                     
                     pots_log, plot = PotsLog(temp_path, 25)
                     st.pyplot(plot)
-                
-                elif analysis_type == "Ghosts":
-                    with open(temp_path, 'r', encoding='utf-8') as file:
+                  elif analysis_type == "Ghosts":
+                    analyzer = GhostAnalyzer()
+                    result = analyzer.analyze_log(file_content.decode())
+                    if result['success']:
+                        # Summary metrics
+                        st.header("Summary")
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Total Waves", result['total_waves'])
+                        with col2:
+                            total_players = len(result['player_stats'])
+                            st.metric("Players Affected", total_players)
+                        with col3:
+                            st.metric("Boss Power", f"{result['boss_power']}%")
+                            if result['boss_power'] >= 150:
+                                st.error("⚠️ Boss Enraged!")
+                        
+                        # Player Performance Table
+                        st.header("Player Performance")
+                        st.dataframe(result['player_stats'])
+                        
+                        # Wave Breakdown
+                        st.header("Wave Analysis")
+                        st.dataframe(result['wave_summary'])
+                        
+                        # Visualization
+                        st.header("Clear Time Distribution")
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        
+                        clear_times = [
+                            (event['clear_time'] - event['start']).total_seconds()
+                            for event in result['debuff_events']
+                            if event['cleared']
+                        ]
+                        
+                        if clear_times:
+                            ax.hist(clear_times, bins=20, color='skyblue', edgecolor='black')
+                            ax.axvline(x=37, color='red', linestyle='--', label='Fail threshold (37s)')
+                            ax.set_xlabel('Clear Time (seconds)')
+                            ax.set_ylabel('Count')
+                            ax.set_title('Distribution of Ghost Clear Times')
+                            ax.legend()
+                            
+                            st.pyplot(fig)
+                    else:
+                        st.error(result['message'])
+                        st.info("Make sure your log file contains ghost mechanics data")with open(temp_path, 'r', encoding='utf-8') as file:
                         log_data = file.read()
                     debuff_data = parse_log(log_data, [])
                     plot = plot_debuff_data(debuff_data)
