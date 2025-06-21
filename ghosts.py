@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 def parse_log(log_data, players):
     # Update patterns to include boss cast and power stacks
     ghost_spawn_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r is casting \|cff57d6aeSpawn Ghosts\|r\|r!"
-    debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r and caused"
+    debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Repulsing Darkness\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r and caused"
     debuff_cleared_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared."
     power_stack_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r."
     
@@ -45,7 +45,7 @@ def parse_log(log_data, players):
             }
 
         if apply_match := re.search(debuff_applied_pattern, line):
-            timestamp_str, attacker, target = apply_match.groups()
+            timestamp_str, target = apply_match.groups()
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
             player = target.strip()
             if player not in debuff_data:
