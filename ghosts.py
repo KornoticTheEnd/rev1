@@ -1,10 +1,15 @@
 import re
+import logging
 from datetime import datetime
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import streamlit as st
 import pandas as pd
 import numpy as np
 from collections import defaultdict
+
+# Enable logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 class GhostAnalyzer:
     def __init__(self):
@@ -193,14 +198,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Enable logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-
-# Function to parse log data
-def parse_log(log_data, players):
-    # Update patterns to include boss cast and power stacks
-    ghost_spawn_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r is casting \|cff57d6aeSpawn Ghosts\|r\|r!"
     debuff_applied_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Repulsing Darkness\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy Effect\|r\|r and caused"
     debuff_cleared_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared."
     power_stack_pattern = r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r."
@@ -350,34 +347,58 @@ def plot_debuff_data(debuff_data, waves=None, boss_power=0):
 
 # Main Streamlit app
 def main():
-    st.title("Ghost Debuff Tracker")
+    st.title("Ghost Mechanic Analysis")
     
-    # File upload
-    log_file = st.file_uploader("Upload your log file", type=["txt"])
+    uploaded_file = st.file_uploader("Upload log file", type=['txt'])
     
-    if log_file is not None:
-        # Read and decode the file
-        log_data = log_file.getvalue().decode("utf-8")
+    if uploaded_file:
+        log_data = uploaded_file.getvalue().decode('utf-8')
+        analyzer = GhostAnalyzer()
+        result = analyzer.analyze_log(log_data)
         
-        # Parse the log data
-        debuff_data, waves, boss_power = parse_log(log_data, [])
-        
-        # Display raw log data for debugging
-        if st.checkbox("Show raw log data"):
-            st.subheader("Raw Log Data")
-            st.code(log_data, language='text')
-        
-        # After creating the figure
-        fig = plot_debuff_data(debuff_data, waves, boss_power)
-        if fig is not None:
-            st.pyplot(fig)  # Explicitly pass the figure to pyplot
+        if result['success']:
+            # Summary metrics
+            st.header("Summary")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Waves", result['total_waves'])
+            with col2:
+                total_players = len(result['player_stats'])
+                st.metric("Players Affected", total_players)
+            with col3:
+                st.metric("Boss Power", f"{result['boss_power']}%")
+                if result['boss_power'] >= 150:
+                    st.error("⚠️ Boss Enraged!")
+            
+            # Player Performance Table
+            st.header("Player Performance")
+            st.dataframe(result['player_stats'])
+            
+            # Wave Breakdown
+            st.header("Wave Analysis")
+            st.dataframe(result['wave_summary'])
+            
+            # Visualization
+            st.header("Clear Time Distribution")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            clear_times = [
+                (event['clear_time'] - event['start']).total_seconds()
+                for event in result['debuff_events']
+                if event['cleared']
+            ]
+            
+            if clear_times:
+                ax.hist(clear_times, bins=20, color='skyblue', edgecolor='black')
+                ax.axvline(x=37, color='red', linestyle='--', label='Fail threshold (37s)')
+                ax.set_xlabel('Clear Time (seconds)')
+                ax.set_ylabel('Count')
+                ax.set_title('Distribution of Ghost Clear Times')
+                ax.legend()
+                st.pyplot(fig)  # Pass the figure explicitly
         else:
-            st.warning("No ghost debuff data found in the log file.")
-            # Add debug info
-            st.info("Debug: Check that your log contains lines matching these patterns:")
-            st.code("Spawn: <timestamp|ic23895;anyone|r is casting |cff57d6aeSpawn Ghosts|r|r!")
-            st.code("Debuff: <timestamp|ic23895;Repulsing Darkness|r attacked player|r using |cff57d6aePenetrating Dark Energy Effect|r|r")
-            st.code("Clear: <timestamp|ic23895;player|r's |cff57d6aePenetrating Dark Energy|r|r debuff cleared.")
+            st.error(result['message'])
+            st.info("Make sure your log file contains ghost mechanics data")
             
 if __name__ == "__main__":
     main()
