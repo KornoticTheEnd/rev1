@@ -16,11 +16,10 @@ class GhostAnalyzer:
     """
     
     def __init__(self):
-        """Initialize the analyzer with regex patterns and empty state."""
-        # Define raw regex patterns
+        """Initialize the analyzer with regex patterns and empty state."""        # Define raw regex patterns
         self.patterns_raw = {            
             'spawn': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r is casting \|cff57d6aePenetrating Dark Energy\|r\|r!",
-            'debuff': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r attacked (.+?)\|r using \|cff57d6aePenetrating Dark Energy\|r\|r and caused",
+            'debuff': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r was struck by a \|cff57d6aePenetrating Dark Energy\|r\|r debuff!",
             'clear': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;(.+?)\|r's \|cff57d6aePenetrating Dark Energy\|r\|r debuff cleared",
             'power': r"<(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|ic23895;Black Dragon\|r gained the buff: \|cff57d6aeDevilish Contract\|r\|r"
         }
@@ -100,14 +99,18 @@ class GhostAnalyzer:
                 self.current_wave = {'start': timestamp, 'players': [], 'clears': [], 'times': []}
                 logging.info(f"Found ghost spawn at {timestamp}")
                 continue  # Skip other checks for this line
-                  
-            # Check debuff
+                    # Check debuff
             elif debuff_match := self.patterns['debuff'].search(line):
                 pattern_matches['debuff'] += 1
                 if not self.current_wave:
                     continue
                 timestamp = self.parse_timestamp(debuff_match.group(1))
                 player = debuff_match.group(2).strip()
+                
+                # Skip non-player entities (mounts, pets, etc.)
+                if "Mount" in player or "Companion" in player:
+                    logging.info(f"Skipping non-player entity: {player}")
+                    continue
                 
                 # Only track new debuffs for this player in the current wave
                 if player not in self.current_wave['players']:
@@ -186,20 +189,27 @@ class GhostAnalyzer:
             return {
                 'success': False,
                 'message': 'No ghost waves found in log'
-            }
-
-        # Convert player stats to DataFrame
-        stats_df = pd.DataFrame([
-            {
-                'Player': player,
-                'Total': stats['total'],
-                'Cleared': stats['cleared'],
-                'Failed': stats['failed'],
-                'Clear Rate': f"{(stats['cleared'] / max(stats['total'], 1) * 100):.1f}%",  # Avoid divide by zero
-                'Avg Clear Time': f"{stats['avg_time']:.1f}s" if stats['avg_time'] > 0 else "N/A"
-            }
-            for player, stats in self.player_stats.items()
-        ])
+            }        # Convert player stats to DataFrame with error handling
+        player_data = []
+        for player, stats in self.player_stats.items():
+            try:
+                clear_rate = f"{(stats['cleared'] / max(stats['total'], 1) * 100):.1f}%" if stats['total'] > 0 else "N/A"
+                avg_time = f"{stats['avg_time']:.1f}s" if stats['avg_time'] > 0 else "N/A"
+                
+                player_data.append({
+                    'Player': player,
+                    'Total': stats['total'],
+                    'Cleared': stats['cleared'],
+                    'Failed': stats['failed'],
+                    'Clear Rate': clear_rate,
+                    'Avg Clear Time': avg_time
+                })
+            except Exception as e:
+                logging.error(f"Error processing player {player}: {e}")
+                continue
+                
+        # Create DataFrame from collected data
+        stats_df = pd.DataFrame(player_data) if player_data else pd.DataFrame()
 
         # Sort by clear rate descending
         stats_df = stats_df.sort_values(
@@ -316,14 +326,17 @@ class GhostAnalyzer:
                 timestamp = self.parse_timestamp(spawn_match.group(1))
                 self.current_wave = {'start': timestamp, 'players': [], 'clears': [], 'times': []}
                 continue
-                  
-            # Check debuff
+                    # Check debuff
             elif debuff_match := self.patterns['debuff'].search(line):
                 pattern_matches['debuff'] += 1
                 if not self.current_wave:
                     continue
                 timestamp = self.parse_timestamp(debuff_match.group(1))
                 player = debuff_match.group(2).strip()
+                
+                # Skip non-player entities (mounts, pets, etc.)
+                if "Mount" in player or "Companion" in player:
+                    continue
                 
                 # Only track new debuffs for this player in the current wave
                 if player not in self.current_wave['players']:
